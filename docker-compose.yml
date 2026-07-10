@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+
+  tienda-db:
+    build: ./db
+    container_name: tienda-db
+    restart: unless-stopped
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    networks:
+      - tienda-network
+
+  tienda-backend:
+    build: ./backend
+    container_name: tienda-backend
+    restart: unless-stopped
+
+    ports:
+      - "3001:3001"
+
+    environment:
+      DB_HOST: tienda-db
+
+    depends_on:
+      - tienda-db
+
+    networks:
+      - tienda-network
+
+  tienda-frontend:
+    build: ./frontend
+    container_name: tienda-frontend
+    restart: unless-stopped
+
+    ports:
+      - "80:80"
+
+    depends_on:
+      - tienda-backend
+
+    networks:
+      - tienda-network
+
+networks:
+  tienda-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
